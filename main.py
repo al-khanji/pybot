@@ -5,8 +5,14 @@ def main():
     connections = list()
 
     for network in config.networks:
-        connection = irc.Connection(network)
-        connections.append(connection)
+        try:
+            connection = irc.Connection(network)
+            connection.connect()
+            connection.join_channels()
+            connections.append(connection)
+        except irc.ConnectionError:
+            print "Error connecting to %s, removing from connection list" \
+                   % network["server"]
 
     while irc.quit is False:
         irc.do_connections(connections)

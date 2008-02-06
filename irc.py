@@ -4,17 +4,16 @@ import actions
 
 BUFSIZE = 4096
 MAX_MSG = 450 # conservative
-VERSION = "slougibot version 0"
 QUIT_MESSAGE = "My master bade me \"Quit thy lurking!\""
 
 quit = False
 
+class ConnectionError(Exception):
+    pass
+
 class Connection(object):
     def __init__(self, params):
         self.__dict__.update(params)
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect()
-        self.join_channels()
         self.left_over = ""
 
     def fileno(self):
@@ -28,7 +27,26 @@ class Connection(object):
             self.ssl.write("%s\r\n" % message)
 
     def connect(self):
-        self.socket.connect((self.server, self.port))
+        self.socket = None
+        for res in socket.getaddrinfo(self.server,
+                                       self.port,
+                                       socket.AF_UNSPEC,
+                                       socket.SOCK_STREAM):
+            af, socktype, proto, canonname, sa = res
+            try:
+                self.socket = socket.socket(af, socktype, proto)
+            except socket.error:
+                self.socket = None
+                continue
+            try:
+                self.socket.connect(sa)
+            except:
+                self.socket.close()
+                self.socket = None
+                continue
+            break
+        if self.socket is None:
+            raise ConnectionError, "could not open socket"
         if self.ssl:
             self.ssl = socket.ssl(self.socket)
         self.write("NICK %s" % self.nick)
