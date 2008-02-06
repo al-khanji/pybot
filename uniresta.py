@@ -25,7 +25,7 @@ paivat[3] = "Keskiviikko"
 paivat[4] = "Torstai"
 paivat[5] = "Perjantai"
 
-def uniresta(msg):
+def uniresta(connection, sender, sender_ident, receiver, message):
     vastaus = str()
     ravintola = "aula"
     paiva = int(time.strftime("%w"))
@@ -33,7 +33,7 @@ def uniresta(msg):
     if paiva not in paivat:
         return "Et saa ruokaa"
     
-    words = msg.split()
+    words = message.split()
     if len(words) > 1 and words[1] != "":
         for key in raflat.iterkeys():
             if key.lower().startswith(words[1].lower()):
@@ -53,6 +53,7 @@ def uniresta(msg):
     parser.feed(html)
     parser.close()
     data = outfile.getvalue()
+    outfile.close()
     
     data = data[data.find("Maanantai"):]
     
@@ -72,4 +73,7 @@ def uniresta(msg):
     else:
         vastaus = "Ilmeisesti %s ei tarjoa ruokaa nyt." % rafla
     
-    return vastaus
+    if receiver == connection.nick:
+        connection.send_private_message(sender, vastaus)
+    else:
+        connection.send_private_message(receiver, vastaus)

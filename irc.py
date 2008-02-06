@@ -3,8 +3,7 @@ import select
 import actions
 
 BUFSIZE = 4096
-MAX_MSG = 450 # conservative
-QUIT_MESSAGE = "My master bade me \"Quit thy lurking!\""
+MAX_MSG = 420 # conservative
 
 quit = False
 
@@ -21,10 +20,10 @@ class Connection(object):
 
     def write(self, message):
         print "<<<", message
-        if not self.ssl:
-            self.socket.sendall("%s\r\n" % message)
-        else:
+        if self.ssl:
             self.ssl.write("%s\r\n" % message)
+        else:
+            self.socket.sendall("%s\r\n" % message)
 
     def connect(self):
         self.socket = None
@@ -51,17 +50,17 @@ class Connection(object):
             self.ssl = socket.ssl(self.socket)
         self.write("NICK %s" % self.nick)
         self.write("USER %s %s dummy :%s" %
-                          (self.nick, self.mode, self.realname))
+                   (self.nick, self.mode, self.realname))
 
     def join_channels(self):
         for chan in self.channels:
             self.write("JOIN %s" % chan)
 
     def process(self):
-        if not self.ssl:
-            data = self.left_over + self.socket.recv(BUFSIZE)
-        else:
+        if self.ssl:
             data = self.left_over + self.ssl.read()
+        else:
+            data = self.left_over + self.socket.recv(BUFSIZE)
         self.left_over = ""
 
         lines = data.split("\r\n")
@@ -72,7 +71,8 @@ class Connection(object):
             self.parse_line(line)
 
     def parse_line(self, line):
-        if len(line.strip()) is 0:
+        line = line.strip()
+        if len(line) is 0:
             return
 
         print ">>>", repr(line)
@@ -94,7 +94,7 @@ class Connection(object):
                 self.write("PONG %s" % words[1])
             elif words[0] == "ERROR":
                 global quit
-                quit = "Yes please"
+                quit = True
 
     def parse_private_message(self, sender, receiver, message):
         name_parts = sender.split("!")
@@ -103,14 +103,9 @@ class Connection(object):
 
         if sender_name == "slougi" and message == "%s: quit" % self.nick:
             global quit
-            quit = QUIT_MESSAGE
+            quit = True
 
-        if actions.match(message):
-            response = actions.action(message)
-            if receiver == self.nick:
-                self.send_private_message(sender, response)
-            else:
-                self.send_private_message(receiver, response)
+        actions.action(self, sender, receiver, message)
 
     def send_private_message(self, receiver, message):
         prefix = "PRIVMSG %s :" % receiver
@@ -122,8 +117,8 @@ class Connection(object):
         for line in lines:
             self.write(prefix + line)
 
-    def quit(self, msg):
-        self.write("QUIT :%s" % msg)
+    def quit(self):
+        self.write("QUIT :%s" % self.quit_message)
         if self.ssl:
             del self.ssl
         self.socket.close()
