@@ -18,7 +18,7 @@ def main():
         irc.do_connections(connections)
 
     for connection in connections:
-        connection.quit(irc.quit)
+        connection.quit()
 
 if __name__ == "__main__":
     main()
