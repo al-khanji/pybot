@@ -13,12 +13,7 @@ defaults = {
 }
 
 networks = [
-#    { "server": "irc.cs.tut.fi", "channels": ["#banaaniloota"] },
-#    { "server": "irc.virtues.fi",
-#      "channels": ["#clarinet"],
-#      "port": 994,
-#      "ssl": True }
-    { "server": "efnet.demon.co.uk", "channels": ["#perjantai"] }
+    { "server": "irc.virtues.fi", "channels": ["#ouspg"], "ssl": True, "port": 994 }
 ]
 
 # don't touch stuff below this line please
