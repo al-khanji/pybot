@@ -105,7 +105,7 @@ class Connection(object):
             global quit
             quit = True
 
-        actions.action(self, sender, receiver, message)
+        actions.action(self, sender_name, sender_ident, receiver, message)
 
     def send_private_message(self, receiver, message):
         prefix = "PRIVMSG %s :" % receiver
