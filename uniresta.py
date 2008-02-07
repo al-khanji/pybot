@@ -1,3 +1,5 @@
+# Copyright (c) 2008 Louai Al-Khanji
+
 from urllib import urlopen
 import StringIO
 import htmllib

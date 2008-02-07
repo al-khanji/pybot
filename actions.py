@@ -1,3 +1,5 @@
+# Copyright (c) 2008 Louai Al-Khanji
+
 import uniresta
 
 def do_uniresta(*args, **keys):

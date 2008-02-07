@@ -1,3 +1,5 @@
+# Copyright (c) 2008 Louai Al-Khanji
+
 import config
 import irc
 

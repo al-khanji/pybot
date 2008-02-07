@@ -1,5 +1,7 @@
 # -*- coding: iso-8859-1 -*-
 
+# This particular file is public domain
+
 defaults = {
     "nick": "slougibot",
     "realname": "minä olen botti",
