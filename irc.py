@@ -86,13 +86,14 @@ class Connection(object):
             try:
                 # numeric
                 code = int(words[1])
+                
             except:
                 # non-numeric
                 if words[1] == "PRIVMSG":
                     sender = words[0].lstrip(":")
                     receiver = words[2]
                     message = " ".join(words[3:]).lstrip(":")
-                    self.parse_private_message(sender, receiver, message)
+                    self.parse_privmsg(sender, receiver, message)
         else:
             if words[0] == "PING":
                 self.write("PONG %s" % words[1])
@@ -100,7 +101,7 @@ class Connection(object):
                 global quit
                 quit = True
 
-    def parse_private_message(self, sender, receiver, message):
+    def parse_privmsg(self, sender, receiver, message):
         name_parts = sender.split("!")
         sender_name = name_parts[0]
         sender_ident = name_parts[1]
