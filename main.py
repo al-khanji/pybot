@@ -15,7 +15,7 @@ def main():
             print "Error connecting to %s, removing from connection list" \
                    % network["server"]
 
-    while irc.quit is False:
+    while irc.quit is False and len(connections) != 0:
         irc.do_connections(connections)
 
     for connection in connections:

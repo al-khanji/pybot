@@ -30,27 +30,30 @@ class Connection(object):
 
     def connect(self):
         self.socket = None
-        for res in socket.getaddrinfo(self.server,
-                                       self.port,
-                                       socket.AF_UNSPEC,
-                                       socket.SOCK_STREAM):
-            af, socktype, proto, canonname, sa = res
-            try:
-                self.socket = socket.socket(af, socktype, proto)
-            except socket.error:
-                self.socket = None
-                continue
-            try:
-                self.socket.connect(sa)
-            except:
-                self.socket.close()
-                self.socket = None
-                continue
-            break
-        if self.socket is None:
-            raise ConnectionError, "could not open socket"
-        if self.ssl:
-            self.ssl = socket.ssl(self.socket)
+        try:
+            for res in socket.getaddrinfo(self.server,
+                                           self.port,
+                                           socket.AF_UNSPEC,
+                                           socket.SOCK_STREAM):
+                af, socktype, proto, canonname, sa = res
+                try:
+                    self.socket = socket.socket(af, socktype, proto)
+                except socket.error:
+                    self.socket = None
+                    continue
+                try:
+                    self.socket.connect(sa)
+                except:
+                    self.socket.close()
+                    self.socket = None
+                    continue
+                break
+            if self.socket is None:
+                raise ConnectionError, "could not open socket"
+            if self.ssl:
+                self.ssl = socket.ssl(self.socket)
+        except socket.gaierror, e:
+            raise ConnectionError, e
         self.write("NICK %s" % self.nick)
         self.write("USER %s %s dummy :%s" %
                    (self.nick, self.mode, self.realname))
