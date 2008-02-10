@@ -93,11 +93,12 @@ class Connection(object):
         logging.info(">>>", repr(line))
 
         words = line.split()
+        message = " ".join(words[3:]).lstrip(":")
+
         if line.startswith(":"):
             try:
                 # numeric
                 code = int(words[1])
-                message = " ".join(words[3:]).lstrip(":")
                 if code >= 1 and code <= 399:
                     self.handle_numeric_reply(code, message)
                 elif code >= 400 and code <= 599:
@@ -107,7 +108,6 @@ class Connection(object):
                 if words[1] == "PRIVMSG":
                     sender = words[0].lstrip(":")
                     receiver = words[2]
-                    message = " ".join(words[3:]).lstrip(":")
                     self.handle_privmsg(sender, receiver, message)
         else:
             if words[0] == "PING":
