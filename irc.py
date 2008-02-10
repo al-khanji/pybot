@@ -16,7 +16,7 @@ class ConnectionError(Exception):
 class Connection(object):
     def __init__(self, params):
         self.__dict__.update(params)
-        self.left_over = ""
+        self._leftover = ""
 
     def fileno(self):
         return self.socket.fileno()
@@ -61,14 +61,14 @@ class Connection(object):
 
     def process(self):
         if self.ssl:
-            data = self.left_over + self.ssl.read()
+            data = self._leftover + self.ssl.read()
         else:
-            data = self.left_over + self.socket.recv(BUFSIZE)
-        self.left_over = ""
+            data = self._leftover + self.socket.recv(BUFSIZE)
+        self._leftover = ""
 
         lines = data.split(LINE_BREAK)
         if data[-2:] != LINE_BREAK:
-            self.left_over = lines.pop(-1)
+            self._leftover = lines.pop(-1)
 
         for line in lines:
             self.parse_line(line)
