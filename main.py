@@ -33,10 +33,10 @@ def main():
 
         try:
             irc.process_connections(connections)
-        except irc.ApplicationExitRequest:
+        except irc.ApplicationExitRequest, msg:
             logging.info("Exit requested, closing remaining connections")
             for connection in connections:
-                connection.quit()
+                connection.quit(msg)
 
     logging.info("All done.")
 

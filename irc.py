@@ -8,6 +8,7 @@ import actions
 BUFSIZE = 4096
 MAX_MSG = 420 # conservative
 LINE_BREAK = "\r\n"
+DEFAULT_QUIT_MSG = "My master bade me \"Quit thy lurking!\""
 
 class ConnectionError(Exception):
     pass
@@ -127,7 +128,7 @@ class Connection(object):
         sender_ident = name_parts[1]
 
         if sender_name == "slougi" and message == "%s: quit" % self.nick:
-            raise ApplicationExitRequest
+            raise ApplicationExitRequest, DEFAULT_QUIT_MSG
 
         actions.action(self, sender_name, sender_ident, receiver, message)
 
@@ -141,8 +142,8 @@ class Connection(object):
         for line in lines:
             self.write(prefix + line)
 
-    def quit(self):
-        self.write("QUIT :%s" % self.quit_message)
+    def quit(self, msg=""):
+        self.write("QUIT :%s" % msg)
 
 def process_connections(connections):
     incoming, _, _ = select.select(connections, [], [])
