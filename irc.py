@@ -108,6 +108,9 @@ class Connection(object):
             elif words[0] == "ERROR":
                 global quit
                 quit = True
+                if self.ssl:
+                    del self.ssl
+                self.socket.close()
 
     def handle_numeric_reply(self, code, message):
         if code == 4: # we're now actually connected
@@ -139,10 +142,6 @@ class Connection(object):
 
     def quit(self):
         self.write("QUIT :%s" % self.quit_message)
-        if self.ssl:
-            del self.ssl
-        self.socket.close()
-        
 
 def do_connections(connections):
     if len(connections) is 0:
