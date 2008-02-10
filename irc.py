@@ -96,7 +96,7 @@ class Connection(object):
                     sender = words[0].lstrip(":")
                     receiver = words[2]
                     message = " ".join(words[3:]).lstrip(":")
-                    self.parse_privmsg(sender, receiver, message)
+                    self.handle_privmsg(sender, receiver, message)
         else:
             if words[0] == "PING":
                 self.write("PONG %s" % words[1])
@@ -110,7 +110,7 @@ class Connection(object):
     def handle_error(self, code, message):
         pass
 
-    def parse_privmsg(self, sender, receiver, message):
+    def handle_privmsg(self, sender, receiver, message):
         name_parts = sender.split("!")
         sender_name = name_parts[0]
         sender_ident = name_parts[1]
