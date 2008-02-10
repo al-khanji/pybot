@@ -16,7 +16,8 @@ def main():
             connection.connect()
             connections.add(connection)
         except irc.ConnectionError, e:
-            logging.error("Error connecting to %s -> %s" % (network["server"], e))
+            logging.error("Error connecting to %s -> %s" %
+                          (network["server"], e))
             logging.info("Removing from connections.")
 
     while True:

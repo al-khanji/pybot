@@ -19,6 +19,7 @@ class Connection(object):
     def __init__(self, params):
         self.__dict__.update(params)
         self._leftover = ""
+        self.socket = None
         self.done = False
 
     def fileno(self):
@@ -32,7 +33,6 @@ class Connection(object):
             self.socket.sendall("%s%s" % (message, LINE_BREAK))
 
     def connect(self):
-        self.socket = None
         try:
             for res in socket.getaddrinfo(self.server,
                                            self.port,
@@ -57,6 +57,7 @@ class Connection(object):
                 self.ssl = socket.ssl(self.socket)
         except socket.gaierror, e:
             raise ConnectionError, e
+
         self.write("NICK %s" % self.nick)
         self.write("USER %s %s dummy :%s" %
                    (self.nick, self.mode, self.realname))
