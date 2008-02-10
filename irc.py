@@ -86,7 +86,10 @@ class Connection(object):
             try:
                 # numeric
                 code = int(words[1])
-                
+                if code > 0 and code < 400:
+                    self.handle_numeric_reply(code, " ".join(words[3]).lstrip(":"))
+                else:
+                    self.handle_error(code, " ".join(words[3]).lstrip(":"))
             except:
                 # non-numeric
                 if words[1] == "PRIVMSG":
@@ -100,6 +103,12 @@ class Connection(object):
             elif words[0] == "ERROR":
                 global quit
                 quit = True
+
+    def handle_numeric_reply(self, code, message):
+        pass
+
+    def handle_error(self, code, message):
+        pass
 
     def parse_privmsg(self, sender, receiver, message):
         name_parts = sender.split("!")
