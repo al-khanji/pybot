@@ -10,7 +10,6 @@ def main():
         try:
             connection = irc.Connection(network)
             connection.connect()
-            connection.join_channels()
             connections.append(connection)
         except irc.ConnectionError:
             print "Error connecting to %s, removing from connection list" \

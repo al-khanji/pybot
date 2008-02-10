@@ -105,7 +105,8 @@ class Connection(object):
                 quit = True
 
     def handle_numeric_reply(self, code, message):
-        pass
+        if code == 4: # we're now actually connected
+            self.join_channels()
 
     def handle_error(self, code, message):
         pass
