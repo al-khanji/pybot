@@ -10,6 +10,9 @@ MAX_MSG = 420 # conservative
 LINE_BREAK = "\r\n"
 DEFAULT_QUIT_MSG = "My master bade me \"Quit thy lurking!\""
 
+class error(Exception):
+    pass
+
 class ConnectionError(Exception):
     pass
 
@@ -146,6 +149,9 @@ class Connection(object):
         self.write("QUIT :%s" % msg)
 
 def process_connections(connections):
+    if len(connections) == 0:
+        raise error, "Empty set of connections given"
+
     incoming, _, _ = select.select(connections, [], [])
 
     for c in incoming:
