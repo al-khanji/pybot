@@ -66,7 +66,7 @@ class Connection(object):
         self.write("USER %s %s dummy :%s" %
                    (self.nick, self.mode, self.realname))
 
-    def join_channels(self):
+    def join_all_channels(self):
         self.write("JOIN %s" % ",".join(self.channels))
 
     def process(self):
@@ -119,7 +119,7 @@ class Connection(object):
 
     def handle_numeric_reply(self, code, message):
         if code == 4: # we're now actually connected
-            self.join_channels()
+            self.join_all_channels()
 
     def handle_error(self, code, message):
         pass
