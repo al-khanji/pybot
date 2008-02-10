@@ -86,10 +86,11 @@ class Connection(object):
             try:
                 # numeric
                 code = int(words[1])
+                message = " ".join(words[3]).lstrip(":")
                 if code > 0 and code < 400:
-                    self.handle_numeric_reply(code, " ".join(words[3]).lstrip(":"))
+                    self.handle_numeric_reply(code, message)
                 else:
-                    self.handle_error(code, " ".join(words[3]).lstrip(":"))
+                    self.handle_error(code, message)
             except:
                 # non-numeric
                 if words[1] == "PRIVMSG":
