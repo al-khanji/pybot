@@ -87,9 +87,9 @@ class Connection(object):
                 # numeric
                 code = int(words[1])
                 message = " ".join(words[3]).lstrip(":")
-                if code > 0 and code < 400:
+                if code >= 1 and code <= 399:
                     self.handle_numeric_reply(code, message)
-                else:
+                elif code >= 400 and code <= 600:
                     self.handle_error(code, message)
             except:
                 # non-numeric
