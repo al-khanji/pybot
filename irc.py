@@ -6,6 +6,7 @@ import actions
 
 BUFSIZE = 4096
 MAX_MSG = 420 # conservative
+LINE_BREAK = "\r\n"
 
 quit = False
 
@@ -21,11 +22,11 @@ class Connection(object):
         return self.socket.fileno()
 
     def write(self, message):
-        print "<<<", message
+        print "<<<", repr(message)
         if self.ssl:
-            self.ssl.write("%s\r\n" % message)
+            self.ssl.write("%s%s" % (message, LINE_BREAK))
         else:
-            self.socket.sendall("%s\r\n" % message)
+            self.socket.sendall("%s%s" % (message, LINE_BREAK))
 
     def connect(self):
         self.socket = None
@@ -65,8 +66,8 @@ class Connection(object):
             data = self.left_over + self.socket.recv(BUFSIZE)
         self.left_over = ""
 
-        lines = data.split("\r\n")
-        if data[-2:] != "\r\n":
+        lines = data.split(LINE_BREAK)
+        if data[-2:] != LINE_BREAK:
             self.left_over = lines.pop(-1)
 
         for line in lines:
