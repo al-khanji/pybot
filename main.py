@@ -18,8 +18,13 @@ def main():
     while irc.quit is False and len(connections) != 0:
         irc.do_connections(connections)
 
-    for connection in connections:
-        connection.quit()
+    if irc.quit is not False:
+        print "Quit requested, closing remaining connections"
+        for connection in connections:
+            connection.quit()
+
+    if len(connections) == 0:
+        print "No connections left, all done here."
 
 if __name__ == "__main__":
     main()
