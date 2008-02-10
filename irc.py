@@ -1,23 +1,25 @@
 # Copyright (c) 2008 Louai Al-Khanji
 
 import socket
-import select
 import logging
+import select
 import actions
 
 BUFSIZE = 4096
 MAX_MSG = 420 # conservative
 LINE_BREAK = "\r\n"
 
-quit = False
-
 class ConnectionError(Exception):
+    pass
+
+class ApplicationExitRequest(Exception):
     pass
 
 class Connection(object):
     def __init__(self, params):
         self.__dict__.update(params)
         self._leftover = ""
+        self.done = False
 
     def fileno(self):
         return self.socket.fileno()
@@ -106,8 +108,7 @@ class Connection(object):
             if words[0] == "PING":
                 self.write("PONG %s" % words[1])
             elif words[0] == "ERROR":
-                global quit
-                quit = True
+                self.done = True
                 if self.ssl:
                     del self.ssl
                 self.socket.close()
@@ -125,8 +126,7 @@ class Connection(object):
         sender_ident = name_parts[1]
 
         if sender_name == "slougi" and message == "%s: quit" % self.nick:
-            global quit
-            quit = True
+            raise ApplicationExitRequest
 
         actions.action(self, sender_name, sender_ident, receiver, message)
 
@@ -143,10 +143,7 @@ class Connection(object):
     def quit(self):
         self.write("QUIT :%s" % self.quit_message)
 
-def do_connections(connections):
-    if len(connections) is 0:
-        raise Exception, "Empty set of connections..."
-
+def process_connections(connections):
     incoming, _, _ = select.select(connections, [], [])
 
     for c in incoming:
