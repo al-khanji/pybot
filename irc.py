@@ -2,6 +2,7 @@
 
 import socket
 import select
+import logging
 import actions
 
 BUFSIZE = 4096
@@ -22,7 +23,7 @@ class Connection(object):
         return self.socket.fileno()
 
     def write(self, message):
-        print "<<<", repr(message)
+        logging.info("<<<", repr(message))
         if self.ssl:
             self.ssl.write("%s%s" % (message, LINE_BREAK))
         else:
@@ -82,7 +83,7 @@ class Connection(object):
         if len(line) is 0:
             return
 
-        print ">>>", repr(line)
+        logging.info(">>>", repr(line))
 
         words = line.split()
         if line.startswith(":"):
