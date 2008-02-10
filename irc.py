@@ -64,11 +64,12 @@ class Connection(object):
             data = self._leftover + self.ssl.read()
         else:
             data = self._leftover + self.socket.recv(BUFSIZE)
-        self._leftover = ""
 
         lines = data.split(LINE_BREAK)
         if data[-2:] != LINE_BREAK:
             self._leftover = lines.pop(-1)
+        else:
+            self._leftover = ""
 
         for line in lines:
             self.parse_line(line)
