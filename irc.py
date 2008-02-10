@@ -67,8 +67,7 @@ class Connection(object):
                    (self.nick, self.mode, self.realname))
 
     def join_channels(self):
-        for chan in self.channels:
-            self.write("JOIN %s" % chan)
+        self.write("JOIN %s" % ",".join(self.channels))
 
     def process(self):
         if self.ssl:
