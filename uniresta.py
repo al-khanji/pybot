@@ -53,6 +53,7 @@ def uniresta(msg):
     parser.feed(html)
     parser.close()
     data = outfile.getvalue()
+    outfile.close()
     
     data = data[data.find("Maanantai"):]
     
