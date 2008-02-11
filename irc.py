@@ -30,7 +30,7 @@ class Connection(object):
         return self.socket.fileno()
 
     def write(self, message):
-        logging.info("<<<", repr(message))
+        logging.info("<<< " + repr(message))
         if self.ssl:
             self.ssl.write("%s%s" % (message, LINE_BREAK))
         else:
@@ -89,7 +89,7 @@ class Connection(object):
         if len(line) is 0:
             return
 
-        logging.info(">>>", repr(line))
+        logging.info(">>> " + repr(line))
 
         words = line.split()
         message = " ".join(words[3:]).lstrip(":")
@@ -151,7 +151,7 @@ def process_connections(connections):
     if len(connections) == 0:
         raise error, "Empty set of connections given"
 
-    incoming, _, _ = select.select(connections, [], [])
+    incoming, outgoing, _ = select.select(connections, [], [])
 
-    for c in incoming:
+    for c in incoming + outgoing:
         c.process()
