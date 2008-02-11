@@ -12,7 +12,8 @@ defaults = {
 }
 
 networks = [
-    { "server": "irc.quakenet.org", "channels": ["#rauhaa_ja_rakkautta"] }
+    { "server": "irc.quakenet.org", "channels": ["#testaus", "#testaus2"] },
+    { "server": "efnet.demon.co.uk", "channels": ["#perjantai"] }
 ]
 
 # don't touch stuff below this line please

@@ -76,7 +76,7 @@ class Connection(object):
             data = self._leftover + self.socket.recv(BUFSIZE)
 
         lines = data.split(LINE_BREAK)
-        if data[-2:] != LINE_BREAK:
+        if not data.endswith(LINE_BREAK):
             self._leftover = lines.pop(-1)
         else:
             self._leftover = ""
