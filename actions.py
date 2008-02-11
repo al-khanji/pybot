@@ -1,25 +1,16 @@
-def get_time(*args, **keys):
-    import time
-    return time.strftime("%Y-%m-%d-%H-%M-%S")
+# Copyright (c) 2008 Louai Al-Khanji
 
-def get_uniresta(msg):
-    import uniresta
-    return uniresta.uniresta(msg)
+import uniresta
 
-def match(act):
-    plain = act.split()[0].lower().lstrip("!")
+def do_uniresta(*args, **keys):
+    return uniresta.uniresta(*args, **keys)
+
+def action(connection, sender, sender_ident, receiver, message):
+    plain = message.split()[0].lower().lstrip("!")
     for key in keywords:
         if key.lower().startswith(plain):
-            return True
-    return False
-
-def action(act):
-    plain = act.split()[0].lower().lstrip("!")
-    for key in keywords:
-        if key.lower().startswith(plain):
-            return keywords[key](act)
+            keywords[key](connection, sender, sender_ident, receiver, message)
 
 keywords = {
-    "aika": get_time,
-    "uniresta": get_uniresta
+    "uniresta": do_uniresta
 }

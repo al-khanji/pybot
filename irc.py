@@ -1,116 +1,135 @@
+# Copyright (c) 2008 Louai Al-Khanji
+
 import socket
+import logging
 import select
 import actions
 
 BUFSIZE = 4096
-MAX_MSG = 450 # conservative
-QUIT_MESSAGE = "My master bade me \"Quit thy lurking!\""
+MAX_MSG = 420 # conservative
+LINE_BREAK = "\r\n"
+DEFAULT_QUIT_MSG = "My master bade me \"Quit thy lurking!\""
 
-quit = False
+class error(Exception):
+    pass
 
 class ConnectionError(Exception):
+    pass
+
+class ApplicationExitRequest(Exception):
     pass
 
 class Connection(object):
     def __init__(self, params):
         self.__dict__.update(params)
-        self.left_over = ""
+        self._leftover = ""
+        self.socket = None
+        self.done = False
 
     def fileno(self):
         return self.socket.fileno()
 
     def write(self, message):
-        print "<<<", message
-        if not self.ssl:
-            self.socket.sendall("%s\r\n" % message)
+        logging.info("<<< " + repr(message))
+        if self.ssl:
+            self.ssl.write("%s%s" % (message, LINE_BREAK))
         else:
-            self.ssl.write("%s\r\n" % message)
+            self.socket.sendall("%s%s" % (message, LINE_BREAK))
 
     def connect(self):
-        self.socket = None
-        for res in socket.getaddrinfo(self.server,
-                                       self.port,
-                                       socket.AF_UNSPEC,
-                                       socket.SOCK_STREAM):
-            af, socktype, proto, canonname, sa = res
-            try:
-                self.socket = socket.socket(af, socktype, proto)
-            except socket.error:
-                self.socket = None
-                continue
-            try:
-                self.socket.connect(sa)
-            except:
-                self.socket.close()
-                self.socket = None
-                continue
-            break
-        if self.socket is None:
-            raise ConnectionError, "could not open socket"
-        if self.ssl:
-            self.ssl = socket.ssl(self.socket)
+        try:
+            for res in socket.getaddrinfo(self.server,
+                                           self.port,
+                                           socket.AF_UNSPEC,
+                                           socket.SOCK_STREAM):
+                af, socktype, proto, canonname, sa = res
+                try:
+                    self.socket = socket.socket(af, socktype, proto)
+                except socket.error:
+                    self.socket = None
+                    continue
+                try:
+                    self.socket.connect(sa)
+                except:
+                    self.socket.close()
+                    self.socket = None
+                    continue
+                break
+            if self.socket is None:
+                raise ConnectionError, "could not open socket"
+            if self.ssl:
+                self.ssl = socket.ssl(self.socket)
+        except socket.gaierror, e:
+            raise ConnectionError, e
+
         self.write("NICK %s" % self.nick)
         self.write("USER %s %s dummy :%s" %
-                          (self.nick, self.mode, self.realname))
+                   (self.nick, self.mode, self.realname))
 
-    def join_channels(self):
-        for chan in self.channels:
-            self.write("JOIN %s" % chan)
+    def join_all_channels(self):
+        self.write("JOIN %s" % ",".join(self.channels))
 
     def process(self):
-        if not self.ssl:
-            data = self.left_over + self.socket.recv(BUFSIZE)
+        if self.ssl:
+            data = self._leftover + self.ssl.read()
         else:
-            data = self.left_over + self.ssl.read()
-        self.left_over = ""
+            data = self._leftover + self.socket.recv(BUFSIZE)
 
-        lines = data.split("\r\n")
-        if data[-2:] != "\r\n":
-            self.left_over = lines.pop(-1)
+        lines = data.split(LINE_BREAK)
+        if not data.endswith(LINE_BREAK):
+            self._leftover = lines.pop(-1)
+        else:
+            self._leftover = ""
 
         for line in lines:
             self.parse_line(line)
 
     def parse_line(self, line):
-        if len(line.strip()) is 0:
+        line = line.strip()
+        if len(line) is 0:
             return
 
-        print ">>>", repr(line)
+        logging.info(">>> " + repr(line))
 
         words = line.split()
+        message = " ".join(words[3:]).lstrip(":")
+
         if line.startswith(":"):
             try:
                 # numeric
                 code = int(words[1])
+                if code >= 1 and code <= 399:
+                    self.handle_numeric_reply(code, message)
+                elif code >= 400 and code <= 599:
+                    self.handle_error(code, message)
             except:
                 # non-numeric
                 if words[1] == "PRIVMSG":
                     sender = words[0].lstrip(":")
                     receiver = words[2]
-                    message = " ".join(words[3:]).lstrip(":")
-                    self.parse_private_message(sender, receiver, message)
+                    self.handle_privmsg(sender, receiver, message)
         else:
             if words[0] == "PING":
                 self.write("PONG %s" % words[1])
             elif words[0] == "ERROR":
-                global quit
-                quit = "Yes please"
+                self.finish()
 
-    def parse_private_message(self, sender, receiver, message):
+    def handle_numeric_reply(self, code, message):
+        if code == 4: # we're now actually connected
+            self.join_all_channels()
+
+    def handle_error(self, code, message):
+        pass
+
+    def handle_privmsg(self, sender, receiver, message):
         name_parts = sender.split("!")
         sender_name = name_parts[0]
         sender_ident = name_parts[1]
 
         if sender_name == "slougi" and message == "%s: quit" % self.nick:
-            global quit
-            quit = QUIT_MESSAGE
+            raise ApplicationExitRequest, DEFAULT_QUIT_MSG
 
-        if actions.match(message):
-            response = actions.action(message)
-            if receiver == self.nick:
-                self.send_private_message(sender, response)
-            else:
-                self.send_private_message(receiver, response)
+        actions.action(self, sender_name, sender_ident, receiver, message)
 
     def send_private_message(self, receiver, message):
         prefix = "PRIVMSG %s :" % receiver
@@ -122,18 +141,23 @@ class Connection(object):
         for line in lines:
             self.write(prefix + line)
 
-    def quit(self, msg):
+    def quit(self, msg=""):
         self.write("QUIT :%s" % msg)
+        # According to RFC we could just wait for ERROR message
+        # but some networks (Quakenet, i look at thee) are just fucked up
+        self.finish()
+
+    def finish(self):
+        self.done = True
         if self.ssl:
             del self.ssl
         self.socket.close()
-        
 
-def do_connections(connections):
-    if len(connections) is 0:
-        raise Exception, "Empty set of connections..."
+def process_connections(connections):
+    if len(connections) == 0:
+        raise error, "Empty set of connections given"
 
-    incoming, _, _ = select.select(connections, [], [])
+    incoming, outgoing, _ = select.select(connections, [], [])
 
-    for c in incoming:
+    for c in incoming + outgoing:
         c.process()

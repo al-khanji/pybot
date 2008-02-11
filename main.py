@@ -1,24 +1,44 @@
+# Copyright (c) 2008 Louai Al-Khanji
+
 import config
 import irc
+import logging
 
 def main():
-    connections = list()
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s %(levelname)s %(message)s",
+                        datefmt="%Y-%m-%d %H:%M:%S")
+    connections = set()
 
     for network in config.networks:
         try:
             connection = irc.Connection(network)
             connection.connect()
-            connection.join_channels()
-            connections.append(connection)
-        except irc.ConnectionError:
-            print "Error connecting to %s, removing from connection list" \
-                   % network["server"]
+            connections.add(connection)
+        except irc.ConnectionError, e:
+            logging.error("Error connecting to %s -> %s" %
+                          (network["server"], e))
+            logging.info("Removing from connections.")
 
-    while irc.quit is False:
-        irc.do_connections(connections)
+    while True:
+        done = set()
+        for c in connections:
+            if c.done is True:
+                done.add(c)
+        connections -= done
 
-    for connection in connections:
-        connection.quit(irc.quit)
+        if len(connections) == 0:
+            logging.info("No connections left.")
+            break
+
+        try:
+            irc.process_connections(connections)
+        except irc.ApplicationExitRequest, msg:
+            logging.info("Exit requested, closing remaining connections")
+            for connection in connections:
+                connection.quit(msg)
+
+    logging.info("All done.")
 
 if __name__ == "__main__":
     main()
