@@ -112,10 +112,7 @@ class Connection(object):
             if words[0] == "PING":
                 self.write("PONG %s" % words[1])
             elif words[0] == "ERROR":
-                self.done = True
-                if self.ssl:
-                    del self.ssl
-                self.socket.close()
+                self.finish()
 
     def handle_numeric_reply(self, code, message):
         if code == 4: # we're now actually connected
@@ -146,6 +143,15 @@ class Connection(object):
 
     def quit(self, msg=""):
         self.write("QUIT :%s" % msg)
+        # According to RFC we could just wait for ERROR message
+        # but some networks (Quakenet, i look at thee) are just fucked up
+        self.finish()
+
+    def finish(self):
+        self.done = True
+        if self.ssl:
+            del self.ssl
+        self.socket.close()
 
 def process_connections(connections):
     if len(connections) == 0:
