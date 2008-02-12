@@ -147,6 +147,8 @@ class Connection(object):
 
         if sender_name == "slougi" and message == "%s: quit" % self.nick:
             raise ApplicationExitRequest, DEFAULT_QUIT_MSG
+        elif self.nick in message and receiver != self.nick:
+            self.send_private_message(receiver, "Hilijaa, idlaan ny")
 
         actions.action(self, sender_name, sender_ident, receiver, message)
 
