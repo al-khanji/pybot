@@ -6,7 +6,7 @@ import select
 import actions
 
 BUFSIZE = 4096
-MAX_MSG = 420 # conservative
+MAX_MSG = 420 # conservative length, depends on irc server
 LINE_BREAK = "\r\n"
 DEFAULT_QUIT_MSG = "My master bade me \"Quit thy lurking!\""
 
