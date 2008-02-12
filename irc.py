@@ -157,7 +157,7 @@ def process_connections(connections):
     if len(connections) == 0:
         raise error, "Empty set of connections given"
 
-    incoming, outgoing, _ = select.select(connections, [], [])
+    incoming, _, _ = select.select(connections, [], [])
 
-    for c in incoming + outgoing:
+    for c in incoming:
         c.process()
