@@ -10,6 +10,10 @@ MAX_MSG = 420 # conservative
 LINE_BREAK = "\r\n"
 DEFAULT_QUIT_MSG = "My master bade me \"Quit thy lurking!\""
 
+# Numeric replies
+
+RPL_MYINFO = 4
+
 class error(Exception):
     pass
 
@@ -115,7 +119,7 @@ class Connection(object):
                 self.finish()
 
     def handle_numeric_reply(self, code, message):
-        if code == 4: # we're now actually connected
+        if code == RPL_MYINFO: # we're now actually connected
             self.join_all_channels()
 
     def handle_error(self, code, message):
