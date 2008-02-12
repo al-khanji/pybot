@@ -113,10 +113,7 @@ class Connection(object):
                     receiver = words[2]
                     self.handle_privmsg(sender, receiver, message)
         else:
-            if words[0] == "PING":
-                self.write("PONG %s" % words[1])
-            elif words[0] == "ERROR":
-                self.finish()
+            self.handle_misc_message(words)
 
     def handle_numeric_reply(self, code, message):
         if code == RPL_MYINFO: # we're now actually connected
@@ -124,6 +121,18 @@ class Connection(object):
 
     def handle_error(self, code, message):
         pass
+
+    def handle_misc_message(self, words):
+        if words[0] == "PING":
+            if len(words) == 3:
+                recipient = words[2]
+            elif len(words) == 2:
+                recipient = words[1].lstrip(":")
+            else:
+                return
+            self.write("PONG %s" % recipient)
+        elif words[0] == "ERROR":
+            self.finish()
 
     def handle_privmsg(self, sender, receiver, message):
         name_parts = sender.split("!")
