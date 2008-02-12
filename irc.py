@@ -10,6 +10,12 @@ MAX_MSG = 420 # conservative length, depends on irc server
 LINE_BREAK = "\r\n"
 DEFAULT_QUIT_MSG = "My master bade me \"Quit thy lurking!\""
 
+# Constants
+NUMERIC_REPLY_MIN = 1
+NUMERIC_REPLY_MAX = 399
+ERROR_MIN = 400
+ERROR_MAX = 599
+
 # Numeric replies
 
 RPL_MYINFO = 4
@@ -102,9 +108,9 @@ class Connection(object):
             try:
                 # numeric
                 code = int(words[1])
-                if code >= 1 and code <= 399:
+                if code >= NUMERIC_REPLY_MIN and code <= NUMERIC_REPLY_MAX:
                     self.handle_numeric_reply(code, message)
-                elif code >= 400 and code <= 599:
+                elif code >= ERROR_MIN and code <= ERROR_MAX:
                     self.handle_error(code, message)
             except:
                 # non-numeric
