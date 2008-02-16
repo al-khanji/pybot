@@ -26,7 +26,7 @@ def load_module(connection, sender, sender_ident, receiver, message):
 def action(connection, sender, sender_ident, receiver, message):
     plain = message.split()[0].lower().lstrip("!")
     for key in keywords:
-        if key.lower().startswith(plain):
+        if plain.lower().startswith(key):
             keywords[key](connection, sender, sender_ident, receiver, message)
             return
 
@@ -35,7 +35,17 @@ def list_modules(connection, sender, sender_ident, receiver, message):
     for x in keywords:
         connection.send_private_message(receiver, "%s" % x)
 
+def delete_module(connection, sender, sender_ident, receiver, message):
+    msg = message.split()
+    module = msg[1]
+    
+    del keywords[module]
+    #del module
+    
+    connection.send_private_message(receiver, "Deleted module %s" % module)
+
 keywords = {
     "load": load_module,
+    "delete": delete_module,
     "modules": list_modules
 }
