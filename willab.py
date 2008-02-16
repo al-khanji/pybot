@@ -42,6 +42,8 @@ def willab(connection, sender, sender_ident, receiver, message):
     else:
         connection.send_private_message(receiver, response)
     
-    
-#main()
-    
+info = {
+    "author": "Teemu Rytilahti",
+    "command": "linnanmaa",
+    "callback": willab
+}

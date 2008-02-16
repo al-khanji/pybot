@@ -79,3 +79,9 @@ def uniresta(connection, sender, sender_ident, receiver, message):
         connection.send_private_message(sender, vastaus)
     else:
         connection.send_private_message(receiver, vastaus)
+
+info = {
+    "author": "Louai Al-Khanji",
+    "command": "uniresta",
+    "callback": uniresta
+}
