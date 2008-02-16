@@ -1,0 +1,11 @@
+PyBot IRC bot
+-------------
+
+About: Extremely simple bot written in Python.
+       Works at least on EFNet, IRCNet, QuakeNet.
+
+How: Edit config.py. Then run the bot: python main.py
+Why: For shits and giggles.
+
+License: Let's see. Non-commercial use for now, GPL or BSD or MIT later.
+
