@@ -3,6 +3,7 @@
 import config
 import irc
 import logging
+import actions
 
 def main():
     logging.basicConfig(level=logging.INFO,
@@ -33,7 +34,7 @@ def main():
 
         try:
             irc.process_connections(connections)
-        except irc.ApplicationExitRequest, msg:
+        except actions.ApplicationExitRequest, msg:
             logging.info("Exit requested, closing remaining connections")
             for connection in connections:
                 connection.quit(msg)

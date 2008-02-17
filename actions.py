@@ -1,6 +1,10 @@
 # Copyright (c) 2008 Louai Al-Khanji
 
 modules = dict()
+DEFAULT_QUIT_MSG = "My master bade me \"Quit thy lurking!\""
+
+class ApplicationExitRequest(Exception):
+    pass
 
 def action(connection, sender, sender_ident, receiver, message):
     plain = message.split()[0].lower().lstrip("!")
@@ -43,8 +47,13 @@ def list_actions(connection, sender, sender_ident, receiver, message):
     for x in keywords:
         connection.send_private_message(receiver, "%s" % x)
 
+def quit(connection, sender, sender_ident, receiver, message):
+    if sender in ["slougi", "teprrr"]:
+        raise ApplicationExitRequest, DEFAULT_QUIT_MSG
+
 keywords = {
     "load": load_module,
     "delete": delete_module,
-    "actions": list_actions
+    "actions": list_actions,
+    "quit": quit
 }
