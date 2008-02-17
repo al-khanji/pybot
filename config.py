@@ -3,7 +3,7 @@
 # This particular file is public domain
 
 defaults = {
-    "nick": "joujoubot",
+    "nick": "slougibot",
     "realname": "minä olen botti",
     "port": 6667,
     "mode": 0, # 8 = +i, 4 = +w, 12 = +wi
@@ -12,7 +12,7 @@ defaults = {
 }
 
 networks = [
-    { "server": "irc.dnainternet.fi", "channels": ["#devel-fi"] }
+    { "server": "irc.cc.tut.fi", "channels": ["#devel-fi"] }
 ]
 
 # don't touch stuff below this line please
