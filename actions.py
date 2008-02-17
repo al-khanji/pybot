@@ -73,8 +73,7 @@ def list_actions(connection, sender, sender_ident, receiver, words):
         connection.send_private_message(recipient, key)
 
 def quit(connection, sender, sender_ident, receiver, words):
-    if sender in ["slougi", "teprrr"]:
-        raise ApplicationExitRequest, DEFAULT_QUIT_MSG
+    raise ApplicationExitRequest, DEFAULT_QUIT_MSG
 
 keywords = {
     "load": { "callback": load_module, "permission": "overlord" },
