@@ -2,6 +2,13 @@
 
 modules = dict()
 
+def action(connection, sender, sender_ident, receiver, message):
+    plain = message.split()[0].lower().lstrip("!")
+    for key in keywords:
+        if key.lower().startswith(plain):
+            keywords[key](connection, sender, sender_ident, receiver, message)
+            return
+
 def load_module(connection, sender, sender_ident, receiver, message):
     try:
         msg = message.split()
@@ -18,18 +25,6 @@ def load_module(connection, sender, sender_ident, receiver, message):
         connection.send_private_message(receiver,
                                         "Error loading module: %s" % str(e))
 
-def action(connection, sender, sender_ident, receiver, message):
-    plain = message.split()[0].lower().lstrip("!")
-    for key in keywords:
-        if key.lower().startswith(plain):
-            keywords[key](connection, sender, sender_ident, receiver, message)
-            return
-
-def list_modules(connection, sender, sender_ident, receiver, message):
-    connection.send_private_message(receiver, "Available modules:");
-    for x in keywords:
-        connection.send_private_message(receiver, "%s" % x)
-
 def delete_module(connection, sender, sender_ident, receiver, message):
     try:
         msg = message.split()
@@ -43,8 +38,13 @@ def delete_module(connection, sender, sender_ident, receiver, message):
                                         "Error deleting module: %s" %
                                         str(e))
 
+def list_actions(connection, sender, sender_ident, receiver, message):
+    connection.send_private_message(receiver, "Defined actions:");
+    for x in keywords:
+        connection.send_private_message(receiver, "%s" % x)
+
 keywords = {
     "load": load_module,
     "delete": delete_module,
-    "modules": list_modules
+    "actions": list_actions
 }
