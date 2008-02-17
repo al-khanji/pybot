@@ -2,6 +2,7 @@
 
 from urllib import urlopen
 import xml.dom.minidom
+import actions
 
 BASE_URL = "http://weather.willab.fi/weather.xml"
 
@@ -37,10 +38,8 @@ def willab(connection, sender, sender_ident, receiver, message):
     
     response = 'Linnanmaa: %s, %s, %s (%s)' % (temp, windspeed, airpressure, time)
     
-    if receiver == connection.nick:
-        connection.send_private_message(sender, response)
-    else:
-        connection.send_private_message(receiver, response)
+    recipient = actions.reply_to(connection, sender, receiver)
+    connection.send_private_message(recipient, response)
     
 info = {
     "author": "Teemu Rytilahti",

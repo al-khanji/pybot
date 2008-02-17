@@ -1,10 +1,12 @@
 # Copyright (c) 2008 Louai Al-Khanji
+# -*- coding: iso-8859-1 -*-
 
 from urllib import urlopen
 import StringIO
 import htmllib
 import formatter
 import time
+import actions
 
 BASE_URL = "http://www.uniresta.fi/tulostettava_ruokalista.php" \
            "?ravintola=%s&viikko=%s&vuosi=%s"
@@ -31,9 +33,11 @@ def uniresta(connection, sender, sender_ident, receiver, message):
     vastaus = str()
     ravintola = "aula"
     paiva = int(time.strftime("%w"))
+    recipient = actions.reply_to(connection, sender, receiver)
     
     if paiva not in paivat:
-        return "Et saa ruokaa"
+        connection.send_private_message(recipient, "Et saa ruokaa tänään")
+        return
     
     words = message.split()
     if len(words) > 1 and words[1] != "":
@@ -75,10 +79,7 @@ def uniresta(connection, sender, sender_ident, receiver, message):
     else:
         vastaus = "Ilmeisesti %s ei tarjoa ruokaa nyt." % rafla
     
-    if receiver == connection.nick:
-        connection.send_private_message(sender, vastaus)
-    else:
-        connection.send_private_message(receiver, vastaus)
+    connection.send_private_message(recipient, vastaus)
 
 info = {
     "author": "Louai Al-Khanji",
