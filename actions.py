@@ -19,7 +19,7 @@ def load_module(connection, sender, sender_ident, receiver, message):
 def action(connection, sender, sender_ident, receiver, message):
     plain = message.split()[0].lower().lstrip("!")
     for key in keywords:
-        if plain.lower().startswith(key):
+        if key.lower().startswith(plain):
             keywords[key](connection, sender, sender_ident, receiver, message)
             return
 
