@@ -29,7 +29,7 @@ def action(connection, sender, sender_ident, receiver, message):
         if key.lower().startswith(plain):
             keys = keywords[key]
             if users.has_permission(user, keys["permission"]):
-                call = keys["call"]
+                call = keys["callback"]
                 call(connection, sender, sender_ident, receiver, words)
                 break
 
@@ -40,10 +40,7 @@ def load_module(connection, sender, sender_ident, receiver, words):
             mod = __import__(module)
             modules[module] = mod
             command = mod.info["command"]
-            callback = mod.info["callback"]
-            permission = mod.info["permission"]
-            keys = {"call": callback, "permission": permission}
-            keywords[command] = keys
+            keywords[command] = mod.info
             
             message = "Loaded module %s" % module
         except Exception, e:
@@ -80,8 +77,8 @@ def quit(connection, sender, sender_ident, receiver, words):
         raise ApplicationExitRequest, DEFAULT_QUIT_MSG
 
 keywords = {
-    "load": { "call": load_module, "permission": "overlord" },
-    "delete": { "call": delete_module, "permission": "overlord" },
-    "actions": { "call": list_actions, "permission": "public" },
-    "quit": { "call": quit, "permission": "overlord" }
+    "load": { "callback": load_module, "permission": "overlord" },
+    "delete": { "callback": delete_module, "permission": "overlord" },
+    "actions": { "callback": list_actions, "permission": "public" },
+    "quit": { "callback": quit, "permission": "overlord" }
 }
