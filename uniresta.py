@@ -29,7 +29,7 @@ paivat[3] = "Keskiviikko"
 paivat[4] = "Torstai"
 paivat[5] = "Perjantai"
 
-def uniresta(connection, sender, sender_ident, receiver, message):
+def uniresta(connection, sender, sender_ident, receiver, words):
     vastaus = str()
     ravintola = "aula"
     paiva = int(time.strftime("%w"))
@@ -39,7 +39,6 @@ def uniresta(connection, sender, sender_ident, receiver, message):
         connection.send_private_message(recipient, "Et saa ruokaa tänään")
         return
     
-    words = message.split()
     if len(words) > 1 and words[1] != "":
         for key in raflat.iterkeys():
             if key.lower().startswith(words[1].lower()):
