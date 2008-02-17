@@ -3,10 +3,9 @@
 modules = dict()
 
 def load_module(connection, sender, sender_ident, receiver, message):
-    msg = message.split()
-    module = msg[1]
-
     try:
+        msg = message.split()
+        module = msg[1]
         mod = __import__(module)
         modules[module] = mod
         command = mod.info["command"]
@@ -32,10 +31,9 @@ def list_modules(connection, sender, sender_ident, receiver, message):
         connection.send_private_message(receiver, "%s" % x)
 
 def delete_module(connection, sender, sender_ident, receiver, message):
-    msg = message.split()
-    module = msg[1]
-
     try:
+        msg = message.split()
+        module = msg[1]
         del keywords[module]
         del modules[module]
         connection.send_private_message(receiver,
