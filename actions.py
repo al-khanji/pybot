@@ -25,7 +25,7 @@ def action(connection, sender, sender_ident, receiver, message):
 
 def load_module(connection, sender, sender_ident, receiver, words):
     if len(words) > 1:
-        module = msg[1]
+        module = words[1]
         try:
             mod = __import__(module)
             modules[module] = mod
@@ -44,7 +44,7 @@ def load_module(connection, sender, sender_ident, receiver, words):
 
 def delete_module(connection, sender, sender_ident, receiver, words):
     if len(words) > 1:
-        module = msg[1]
+        module = words[1]
         try:
             del keywords[module]
             del modules[module]
