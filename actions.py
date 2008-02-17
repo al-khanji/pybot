@@ -9,7 +9,10 @@ class ApplicationExitRequest(Exception):
     pass
 
 def reply_to(connection, sender, receiver):
-    return sender if (receiver == connection.nick) else receiver
+    if receiver == connection.nick:
+        return sender
+    else:
+        return receiver
 
 def action(connection, sender, sender_ident, receiver, message):
     if not message.startswith(ACTION_CHAR):
