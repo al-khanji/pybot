@@ -1,11 +1,14 @@
 # Copyright (c) 2008 Louai Al-Khanji
 
+modules = dict()
+
 def load_module(connection, sender, sender_ident, receiver, message):
     msg = message.split()
     module = msg[1]
 
     try:
         mod = __import__(module)
+        modules[module] = mod
         command = mod.info["command"]
         cb = mod.info["callback"]
         keywords[command] = cb
@@ -33,7 +36,8 @@ def delete_module(connection, sender, sender_ident, receiver, message):
     module = msg[1]
 
     try:
-        del keywords[module]    
+        del keywords[module]
+        del modules[module]
         connection.send_private_message(receiver,
                                         "Deleted module %s" % module)
     except Exception, e:
