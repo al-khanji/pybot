@@ -83,5 +83,6 @@ def uniresta(connection, sender, sender_ident, receiver, words):
 info = {
     "author": "Louai Al-Khanji",
     "command": "uniresta",
-    "callback": uniresta
+    "callback": uniresta,
+    "permission": "public"
 }

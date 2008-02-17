@@ -44,5 +44,6 @@ def willab(connection, sender, sender_ident, receiver, message):
 info = {
     "author": "Teemu Rytilahti",
     "command": "linnanmaa",
-    "callback": willab
+    "callback": willab,
+    "permission": "public"
 }

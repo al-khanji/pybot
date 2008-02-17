@@ -1,5 +1,7 @@
 # Copyright (c) 2008 Louai Al-Khanji
 
+import users
+
 modules = dict()
 
 DEFAULT_QUIT_MSG = "My master bade me \"Quit thy lurking!\""
@@ -18,13 +20,18 @@ def action(connection, sender, sender_ident, receiver, message):
     if not message.startswith(ACTION_CHAR):
         return
 
+    ident, host = sender_ident.split("@")
+    user = users.find_user(sender, ident, host)
+
     words = message.split()
     plain = words[0].lower().lstrip(ACTION_CHAR)
     for key in keywords:
         if key.lower().startswith(plain):
-            keywords[key](connection, sender, sender_ident, receiver,
-                          words)
-            return
+            keys = keywords[key]
+            if users.has_permission(user, keys["permission"]):
+                call = keys["call"]
+                call(connection, sender, sender_ident, receiver, words)
+                break
 
 def load_module(connection, sender, sender_ident, receiver, words):
     if len(words) > 1:
@@ -33,8 +40,10 @@ def load_module(connection, sender, sender_ident, receiver, words):
             mod = __import__(module)
             modules[module] = mod
             command = mod.info["command"]
-            cb = mod.info["callback"]
-            keywords[command] = cb
+            callback = mod.info["callback"]
+            permission = mod.info["permission"]
+            keys = {"call": callback, "permission": permission}
+            keywords[command] = keys
             
             message = "Loaded module %s" % module
         except Exception, e:
@@ -71,8 +80,8 @@ def quit(connection, sender, sender_ident, receiver, words):
         raise ApplicationExitRequest, DEFAULT_QUIT_MSG
 
 keywords = {
-    "load": load_module,
-    "delete": delete_module,
-    "actions": list_actions,
-    "quit": quit
+    "load": { "call": load_module, "permission": "overlord" },
+    "delete": { "call": delete_module, "permission": "overlord" },
+    "actions": { "call": list_actions, "permission": "public" },
+    "quit": { "call": quit, "permission": "overlord" }
 }
