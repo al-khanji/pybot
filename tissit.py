@@ -7,30 +7,17 @@ import actions
 
 BASE_URL = "http://www.heinola.org/~count/tissit/"
 
-IMAGELIST = dict()
-
-def init():
-    html = urlopen(BASE_URL)
-    
-    p = re.compile('<A HREF="(.+?\.jpg)">')
-
-    imagelist = p.findall(html.read())
-    
-    return imagelist
+html = urlopen(BASE_URL)
+p = re.compile('<A HREF="(.+?\.jpg)">')
+IMAGELIST = p.findall(html.read())
 
 
 def tissit(connection, sender, sender_ident, receiver, message):
     global IMAGELIST
-    
-    response = str()
-    
-    if(len(IMAGELIST) == 0):
-        IMAGELIST = init()
-    
-    num = random.randint(0, len(IMAGELIST))
-    
+
+    num = random.randint(0, len(IMAGELIST))    
     response = 'Tissit: %s%s' % (BASE_URL, IMAGELIST[num])
-    
+
     recipient = actions.reply_to(connection, sender, receiver)
     connection.send_private_message(recipient, response)
     
