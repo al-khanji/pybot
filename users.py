@@ -47,3 +47,4 @@ def find_user(nick, ident, host):
             break
     userdb.close()
     return result
+
